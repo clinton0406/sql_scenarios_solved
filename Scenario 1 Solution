@@ -1,0 +1,28 @@
+/* 
+Basic idea here is to find users who used Facebook in two different months, hence we create two CTEs. 
+If you can handle the scenarios with subqueries, its equally acceptable solution.
+NOTE: Followed the rules of PostgreSQL here. Based on DBMS one uses, the syntax would differ mildly.
+*/
+
+
+--CTE Expressions for July and June Users
+
+WITH jul_activeusers AS(
+SELECT DISTINCT user_id,
+date_part('month',event_date) AS month
+FROM user_actions
+WHERE date_part('month',event_date) in (7)
+),
+
+jun_activeusers AS(
+SELECT distinct user_id,
+date_part('month',event_date) AS month
+FROM user_actions
+WHERE date_part('month',event_date) in (6)
+)
+
+--Performed with equijoins
+select jul_activeusers.month AS mth, count(jul_activeusers.user_id) AS monthly_active_users
+from jul_activeusers, jun_activeusers
+where jul_activeusers.user_id = jun_activeusers.user_id
+GROUP BY jul_activeusers.month
