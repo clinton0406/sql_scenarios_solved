@@ -1,0 +1,5 @@
+SELECT distinct pages.page_id          --Disctinct is to avoid repeated values
+FROM pages LEFT JOIN page_likes        --Left Join would give us the pages that are not present in page_likes table
+ON pages.page_id = page_likes.page_id
+GROUP BY pages.page_id
+HAVING COUNT(page_likes.user_id) = 0
