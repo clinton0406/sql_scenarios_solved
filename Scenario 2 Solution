@@ -1,0 +1,13 @@
+/*
+Use of Lag() function gives us the value of previous cell. This is an useful function to understand.
+
+Year On Year Growth = (Current Year Metric - Previous Year Metric)*100/Previous Year Metric.
+*/
+
+select 
+date_part('year', transaction_date) as yr, 
+product_id, 
+spend as curr_year_spend, 
+lag(spend)over(partition by product_id ORDER BY product_id,date_part('year', transaction_date)) as prev_year_spend,
+round((spend - lag(spend)over(partition by product_id ORDER BY product_id,date_part('year', transaction_date)))*100/(lag(spend)over(partition by product_id ORDER BY product_id,date_part('year', transaction_date))),2) as yoy_rate
+from user_transactions
