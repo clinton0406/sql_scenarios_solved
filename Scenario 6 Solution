@@ -1,0 +1,3 @@
+SELECT 
+(SELECT COUNT(user_id) FROM viewership WHERE device_type = 'tablet') AS laptop_views, 
+(SELECT COUNT(user_id) FROM viewership WHERE device_type != 'tablet') AS mobile_views
