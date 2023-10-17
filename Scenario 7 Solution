@@ -1,0 +1,55 @@
+with games_played as
+	(
+	select sum(games_played) P, team
+	from
+	(
+	select COUNT(team_1) games_played, team_1 team
+	from icc_world_cup
+	group by team_1
+	
+--Answer why union all over union is used?
+union all
+	select COUNT(team_2) games_played, team_2 team
+	from icc_world_cup
+	group by team_2
+	)s
+	group by team
+	),
+
+	games_won as             
+	(
+	select count(winner) W, winner
+	from icc_world_cup
+	where winner != 'DRAW'
+	group by winner
+	),
+
+	games_lost as
+	(
+	select count(loser) L, loser
+	from
+	(
+	select case when team_1 = winner then team_2 when team_2 = winner then team_1 end as loser
+	from icc_world_cup
+	)s
+	where loser is not null
+	group by loser
+	),
+
+	games_drawn as
+	(
+	select count(team) D, team
+	from
+	(
+	select team_1 team from icc_world_cup where winner = 'DRAW'
+	UNION ALL
+	select team_2 team from icc_world_cup where winner = 'DRAW'
+	)s
+	group by team
+	)
+
+select games_played.team, games_played.P, coalesce(games_won.W,0) W, coalesce(games_lost.L,0) L, coalesce(games_drawn.D,0) D, (coalesce(games_won.W,0)*2 + coalesce(games_drawn.D,0)*1) Points
+from games_played left join games_won
+on games_played.team = games_won.winner
+left join games_lost on games_played.team = games_lost.loser
+left join games_drawn on games_played.team = games_drawn.team
