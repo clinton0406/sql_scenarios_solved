@@ -2,8 +2,8 @@
 
 with flight_nos as (
 	select cid, origin,destination, rank()over(partition by cid order by fid) as rnk 
-    from flights
-    ),
+    	from flights
+    	),
 final_destination as (
 	select cid,destination, rnk
 	from(
@@ -12,14 +12,12 @@ final_destination as (
 		)max_rnk
 	where max_rnk=rnk
 	),
-
 origin as (
 	select cid, origin
-    from flight_nos
+    	from flight_nos
 	where rnk = 1
-)
-
-
+	)
+	
 select origin.cid, origin.origin, final_destination.destination
 from origin, final_destination
 where origin.cid = final_destination.cid
